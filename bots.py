@@ -12,7 +12,7 @@ class StudentBot():
         start = asp.get_start_state()
         self.player = start.player_to_move()
         self.board = start.board
-        return alpha_beta_cutoff(asp,3,self.heur)
+        return alpha_beta_cutoff(asp,1,self.heur)
         
     def sigmoid(self,x):
         #a function that maps any real number to a value between 0 and 1
@@ -24,20 +24,20 @@ class StudentBot():
     def heur(self,state):
         origin = state.player_locs[self.player]
         opponent = state.player_locs[(self.player+1)%2]
-        score, connected = self.bfs(state,self.player)
+        score, connected = self.bfs_with_powerup(state,self.player)
         #scale score down so the sigmoid function is more responsive
         if not connected:
+            #print "not connected"
             return self.sigmoid(score/200.0)
         else:
             # if connected, try to get close to opponent
+            #print "connected"
+            # score1, score2 = self.calculateScore(state,self.player)
+            # print score1, score2
+            # return self.sigmoid((score1 - score2)/200.0)
             return -self.manhattan_distance(origin, opponent)
-    
-    def adjacent(self,a,b):
-        if abs(a[0] - b[0]) + abs(a[1] - b[1]) <= 1:
-            return True
-        return False
 
-    def bfs(self,state,play_num): #a bounded search of how many tiles are accessible
+    def bfs_with_powerup(self,state,play_num): #a bounded search of how many tiles are accessible
         board = state.board
         origin = state.player_locs[play_num]
         opponent = state.player_locs[(play_num+1)%2]
@@ -59,7 +59,7 @@ class StudentBot():
                 if self.board[i][j] == '*':
                     #print (i,j),origin
                     powerup += 10*math.exp(-level)
-                if self.adjacent(curr, opponent):
+                if self.manhattan_distance(curr, opponent) == 1:
                     connected = True
                 valid_moves = list(TronProblem.get_safe_actions(board,curr))
                 for direction in valid_moves:
@@ -70,6 +70,45 @@ class StudentBot():
         score = len(visited) + powerup
         #print score
         return score,connected
+
+    def bfs(self,state,play_num): #a bounded search of how many tiles are accessible
+        board = state.board
+        origin = state.player_locs[play_num]
+        opponent = state.player_locs[(play_num+1)%2]
+        visited = set()
+        Q = Queue.Queue()
+        Q.put(origin)
+        visited.add(origin)
+        #print state.board
+        while not Q.empty():
+            size = Q.qsize()
+            for i in range(size):
+                curr = Q.get()
+                valid_moves = list(TronProblem.get_safe_actions(board,curr))
+                for direction in valid_moves:
+                    neighbor = TronProblem.move(curr,direction)
+                    if neighbor not in visited:
+                        visited.add(neighbor)
+                        Q.put(neighbor)
+        score = len(visited)
+        #print score
+        return score
+
+    def calculateScore(self, state, play_num):
+        board = state.board
+        score1, score2 = 0, 0
+        origin = state.player_locs[play_num]
+        opponent = state.player_locs[(play_num+1)%2]
+        for i in range(len(board)):
+            for j in range(len(board[0])):
+                if board[i][j] == ' ' or board[i][j] == '*':
+                    dis1 = self.manhattan_distance(origin, (i,j))
+                    dis2 = self.manhattan_distance(opponent, (i,j))
+                    if dis1 > dis2:
+                        score1 += 1
+                    elif dis2 > dis1:
+                        score2 += 1
+        return score1, score2
 
     def cleanup(self):
         pass

@@ -20,8 +20,8 @@ def alpha_beta_cutoff(asp, cutoff_turn, eval_func):
     for action in TronProblem.get_safe_actions(state.board,state.player_locs[player]):
         next_state = asp.transition(state,action)
         value = abchelper(asp,next_state,cutoff_turn-1,a,b,False,eval_func,player)
-        #print 'action: %s' % action
-        #print 'value: %s' % value
+        print 'action: %s' % action
+        print 'value: %s' % value
         if value >= best_value:
             best_value = value
             best_action = action
