@@ -32,10 +32,12 @@ class StudentBot():
         else:
             # if connected, try to get close to opponent
             #print "connected"
-            # score1, score2 = self.calculateScore(state,self.player)
-            # print score1, score2
-            # return self.sigmoid((score1 - score2)/200.0)
-            return -self.manhattan_distance(origin, opponent)
+            board1 = self.bfs(state, self.player)
+            board2 = self.bfs(state, (self.player + 1)%2)
+            score1, score2 = self.calculateScore(board1, board2)
+            #print score,score1,score2
+            return self.sigmoid((score1 - score2)/200.0)
+            #return -self.manhattan_distance(origin, opponent)
 
     def bfs_with_powerup(self,state,play_num): #a bounded search of how many tiles are accessible
         board = state.board
@@ -73,40 +75,42 @@ class StudentBot():
 
     def bfs(self,state,play_num): #a bounded search of how many tiles are accessible
         board = state.board
+
+        newboard = [[ -1 for elt in row] for row in state.board]
         origin = state.player_locs[play_num]
-        opponent = state.player_locs[(play_num+1)%2]
         visited = set()
         Q = Queue.Queue()
         Q.put(origin)
         visited.add(origin)
+        dis = 0
         #print state.board
         while not Q.empty():
             size = Q.qsize()
             for i in range(size):
                 curr = Q.get()
+                i,j = curr
+                newboard[i][j] = dis
                 valid_moves = list(TronProblem.get_safe_actions(board,curr))
                 for direction in valid_moves:
                     neighbor = TronProblem.move(curr,direction)
                     if neighbor not in visited:
                         visited.add(neighbor)
                         Q.put(neighbor)
-        score = len(visited)
+            dis += 1
         #print score
-        return score
+        return newboard
 
-    def calculateScore(self, state, play_num):
-        board = state.board
+    def calculateScore(self, board1, board2):
         score1, score2 = 0, 0
-        origin = state.player_locs[play_num]
-        opponent = state.player_locs[(play_num+1)%2]
-        for i in range(len(board)):
-            for j in range(len(board[0])):
-                if board[i][j] == ' ' or board[i][j] == '*':
-                    dis1 = self.manhattan_distance(origin, (i,j))
-                    dis2 = self.manhattan_distance(opponent, (i,j))
-                    if dis1 > dis2:
+        for i in range(len(board1)):
+            for j in range(len(board1[0])):
+                if board1[i][j] < 0 and board2[i][j] < 0: continue
+                if board1[i][j] < 0: score2 += 1
+                elif board2[i][j] < 0: score1 += 1
+                else: 
+                    if board1[i][j] < board2[i][j]:
                         score1 += 1
-                    elif dis2 > dis1:
+                    elif board1[i][j] > board2[i][j]:
                         score2 += 1
         return score1, score2
 
