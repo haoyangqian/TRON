@@ -152,7 +152,8 @@ class TronProblem(AdversarialSearchProblem):
         board_file = open(board_file_loc)
         board = []
         for line in board_file.readlines():
-            row = [c for c in line if not(c == '\n')]
+            line = line.strip()
+            row = [c for c in line]
             board.append(row)
         return board
 

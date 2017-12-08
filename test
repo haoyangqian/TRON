@@ -1,0 +1,20 @@
+#!/bin/bash
+
+echo student wall empty_room
+python gamerunner.py -bots student wall -map maps/empty_room.txt -multi_test 100 -no_image
+echo student wall divider
+python gamerunner.py -bots student wall -map maps/divider.txt -multi_test 100 -no_image
+echo student wall joust
+python gamerunner.py -bots student wall -map maps/joust.txt -multi_test 100 -no_image
+echo student random empty_room
+python gamerunner.py -bots student random -map maps/empty_room.txt -multi_test 100 -no_image
+echo student random divider
+python gamerunner.py -bots student random -map maps/divider.txt -multi_test 100 -no_image
+echo student random joust
+python gamerunner.py -bots student random -map maps/joust.txt -multi_test 100 -no_image
+echo student ta1 empty_room
+python gamerunner.py -bots student ta1 -map maps/empty_room.txt -multi_test 100 -no_image
+echo student ta1 divider
+python gamerunner.py -bots student ta1 -map maps/divider.txt -multi_test 100 -no_image
+echo student ta1 joust
+python gamerunner.py -bots student ta1 -map maps/joust.txt -multi_test 100 -no_image
